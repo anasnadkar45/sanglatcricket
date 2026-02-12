@@ -1,8 +1,9 @@
 import React from 'react'
+import TeamBanner from './team/TeamBanner'
 
 const MainSection = () => {
   return (
-    <div>
+    <div className='p-3'>
         <TeamBanner />
     </div>
   )

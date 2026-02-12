@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "./api/uploadthing/core";
+import { ModeToggle } from "@/components/theme/ModeToggle";
 
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -52,6 +53,7 @@ export default function RootLayout({
               routerConfig={extractRouterConfig(ourFileRouter)}
             />
             {children}
+            <ModeToggle />
           </main>
           <Toaster />
         </ThemeProvider>

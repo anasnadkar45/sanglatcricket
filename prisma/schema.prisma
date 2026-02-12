@@ -37,7 +37,6 @@ model User {
   @@map("user")
 }
 
-
 model Session {
   id        String   @id
   expiresAt DateTime
@@ -87,8 +86,8 @@ model Verification {
 //////////////////////////////////////////////////////
 
 model Team {
-  id          String   @id @default(cuid())
-  name        String
+  id          String  @id @default(cuid())
+  name        String  @unique
   shortName   String?
   tagline     String?
   foundedYear Int?
@@ -100,11 +99,11 @@ model Team {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  players  Player[]
-  seasons  Season[]
-  matches  Match[]
-  media    Media[]
-  fines    Fine[]
+  players Player[]
+  seasons Season[]
+  matches Match[]
+  media   Media[]
+  fines   Fine[]
 
   @@map("teams")
 }
@@ -114,9 +113,9 @@ model Team {
 //////////////////////////////////////////////////////
 
 model Player {
-  id           String   @id @default(cuid())
-  teamId       String
-  team         Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   name         String
   nickname     String?
@@ -145,9 +144,9 @@ enum PlayerRole {
 }
 
 model PlayerCareerStats {
-  id        String @id @default(cuid())
-  playerId  String @unique
-  player    Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  id       String @id @default(cuid())
+  playerId String @unique
+  player   Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
 
   matches   Int @default(0)
   runs      Int @default(0)
@@ -166,9 +165,9 @@ model PlayerCareerStats {
 //////////////////////////////////////////////////////
 
 model Season {
-  id        String   @id @default(cuid())
-  teamId    String
-  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   year      Int
   createdAt DateTime @default(now())
@@ -201,7 +200,7 @@ model PlayerSeasonStats {
 }
 
 model SeasonAward {
-  id       String @id @default(cuid())
+  id       String    @id @default(cuid())
   playerId String
   seasonId String
   type     AwardType
@@ -224,9 +223,9 @@ enum AwardType {
 //////////////////////////////////////////////////////
 
 model Match {
-  id        String   @id @default(cuid())
-  teamId    String
-  seasonId  String
+  id       String @id @default(cuid())
+  teamId   String
+  seasonId String
 
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
   season Season @relation(fields: [seasonId], references: [id])
@@ -253,14 +252,14 @@ enum MatchResult {
 //////////////////////////////////////////////////////
 
 model Media {
-  id        String   @id @default(cuid())
-  teamId    String
-  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   title     String?
   imageUrl  String
   type      MediaType
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   @@map("media")
 }
@@ -275,9 +274,9 @@ enum MediaType {
 //////////////////////////////////////////////////////
 
 model Fine {
-  id         String   @id @default(cuid())
-  teamId     String
-  team       Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   playerName String
   reason     String
