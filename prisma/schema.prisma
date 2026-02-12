@@ -37,125 +37,6 @@ model User {
   @@map("user")
 }
 
-model Player {
-  id           String   @id @default(cuid())
-  name         String
-  nickname     String?
-  jerseyNumber Int?
-  role         PlayerRole
-  battingStyle String?
-  bowlingStyle String?
-  debutYear    Int?
-  imageUrl     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  stats           PlayerCareerStats?
-  seasonStats     PlayerSeasonStats[]
-  awards          SeasonAward[]
-
-  @@map("players")
-}
-
-enum PlayerRole {
-  BATTER
-  BOWLER
-  ALL_ROUNDER
-  WICKET_KEEPER
-}
-
-model Season {
-  id        String   @id @default(cuid())
-  year      Int      @unique
-  createdAt DateTime @default(now())
-
-  matches      Match[]
-  playerStats  PlayerSeasonStats[]
-  awards       SeasonAward[]
-
-  @@map("seasons")
-}
-
-
-model PlayerCareerStats {
-  id        String @id @default(cuid())
-  playerId  String @unique
-  player    Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
-
-  matches  Int @default(0)
-  runs     Int @default(0)
-  wickets  Int @default(0)
-  catches  Int @default(0)
-  sixes    Int @default(0)
-  fours    Int @default(0)
-  ducks    Int @default(0)
-  momAwards Int @default(0)
-
-  @@map("player_career_stats")
-}
-
-model PlayerSeasonStats {
-  id       String @id @default(cuid())
-  playerId String
-  seasonId String
-
-  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
-
-  matches  Int @default(0)
-  runs     Int @default(0)
-  wickets  Int @default(0)
-  catches  Int @default(0)
-  momAwards Int @default(0)
-
-  rankingPoints Int @default(0)
-
-  @@unique([playerId, seasonId])
-  @@map("player_season_stats")
-}
-
-model SeasonAward {
-  id       String @id @default(cuid())
-  playerId String
-  seasonId String
-  type     AwardType
-
-  player Player @relation(fields: [playerId], references: [id])
-  season Season @relation(fields: [seasonId], references: [id])
-
-  @@map("season_awards")
-}
-
-enum AwardType {
-  MVP
-  BEST_BATTER
-  BEST_BOWLER
-  MOST_IMPROVED
-}
-
-model Match {
-  id        String   @id @default(cuid())
-  seasonId  String
-  opponent  String
-  venue     String?
-  matchDate DateTime
-  result    MatchResult
-  summary   String?
-  imageUrl  String?
-
-  season Season @relation(fields: [seasonId], references: [id])
-
-  @@map("matches")
-}
-
-enum MatchResult {
-  WON
-  LOST
-  TIED
-  NO_RESULT
-}
-
 
 model Session {
   id        String   @id
@@ -199,4 +80,209 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+//////////////////////////////////////////////////////
+// TEAM ROOT MODEL
+//////////////////////////////////////////////////////
+
+model Team {
+  id          String   @id @default(cuid())
+  name        String
+  shortName   String?
+  tagline     String?
+  foundedYear Int?
+  logoUrl     String?
+  bannerUrl   String?
+  homeGround  String?
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  players  Player[]
+  seasons  Season[]
+  matches  Match[]
+  media    Media[]
+  fines    Fine[]
+
+  @@map("teams")
+}
+
+//////////////////////////////////////////////////////
+// PLAYERS
+//////////////////////////////////////////////////////
+
+model Player {
+  id           String   @id @default(cuid())
+  teamId       String
+  team         Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  name         String
+  nickname     String?
+  jerseyNumber Int?
+  role         PlayerRole
+  battingStyle String?
+  bowlingStyle String?
+  debutYear    Int?
+  imageUrl     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  stats       PlayerCareerStats?
+  seasonStats PlayerSeasonStats[]
+  awards      SeasonAward[]
+
+  @@map("players")
+}
+
+enum PlayerRole {
+  BATTER
+  BOWLER
+  ALL_ROUNDER
+  WICKET_KEEPER
+}
+
+model PlayerCareerStats {
+  id        String @id @default(cuid())
+  playerId  String @unique
+  player    Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  matches   Int @default(0)
+  runs      Int @default(0)
+  wickets   Int @default(0)
+  catches   Int @default(0)
+  sixes     Int @default(0)
+  fours     Int @default(0)
+  ducks     Int @default(0)
+  momAwards Int @default(0)
+
+  @@map("player_career_stats")
+}
+
+//////////////////////////////////////////////////////
+// SEASONS + RANKINGS
+//////////////////////////////////////////////////////
+
+model Season {
+  id        String   @id @default(cuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  year      Int
+  createdAt DateTime @default(now())
+
+  matches     Match[]
+  playerStats PlayerSeasonStats[]
+  awards      SeasonAward[]
+
+  @@unique([teamId, year])
+  @@map("seasons")
+}
+
+model PlayerSeasonStats {
+  id       String @id @default(cuid())
+  playerId String
+  seasonId String
+
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  matches       Int @default(0)
+  runs          Int @default(0)
+  wickets       Int @default(0)
+  catches       Int @default(0)
+  momAwards     Int @default(0)
+  rankingPoints Int @default(0)
+
+  @@unique([playerId, seasonId])
+  @@map("player_season_stats")
+}
+
+model SeasonAward {
+  id       String @id @default(cuid())
+  playerId String
+  seasonId String
+  type     AwardType
+
+  player Player @relation(fields: [playerId], references: [id])
+  season Season @relation(fields: [seasonId], references: [id])
+
+  @@map("season_awards")
+}
+
+enum AwardType {
+  MVP
+  BEST_BATTER
+  BEST_BOWLER
+  MOST_IMPROVED
+}
+
+//////////////////////////////////////////////////////
+// MATCHES
+//////////////////////////////////////////////////////
+
+model Match {
+  id        String   @id @default(cuid())
+  teamId    String
+  seasonId  String
+
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  season Season @relation(fields: [seasonId], references: [id])
+
+  opponent  String
+  venue     String?
+  matchDate DateTime
+  result    MatchResult
+  summary   String?
+  imageUrl  String?
+
+  @@map("matches")
+}
+
+enum MatchResult {
+  WON
+  LOST
+  TIED
+  NO_RESULT
+}
+
+//////////////////////////////////////////////////////
+// GALLERY + MEMES
+//////////////////////////////////////////////////////
+
+model Media {
+  id        String   @id @default(cuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  title     String?
+  imageUrl  String
+  type      MediaType
+  createdAt DateTime @default(now())
+
+  @@map("media")
+}
+
+enum MediaType {
+  PHOTO
+  MEME
+}
+
+//////////////////////////////////////////////////////
+// FINES (DRESSING ROOM 😄)
+//////////////////////////////////////////////////////
+
+model Fine {
+  id         String   @id @default(cuid())
+  teamId     String
+  team       Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  playerName String
+  reason     String
+  amount     Int
+  createdAt  DateTime @default(now())
+
+  @@map("fines")
 }
