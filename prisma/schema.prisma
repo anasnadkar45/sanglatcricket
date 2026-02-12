@@ -1,0 +1,202 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  userName            String? @unique
+  bio                 String?
+  x                   String?
+  github              String?
+  instagram           String?
+  onboardingCompleted Boolean @default(false)
+
+  accessToken String?
+
+  sessions Session[]
+  accounts Account[]
+
+  @@map("user")
+}
+
+model Player {
+  id           String   @id @default(cuid())
+  name         String
+  nickname     String?
+  jerseyNumber Int?
+  role         PlayerRole
+  battingStyle String?
+  bowlingStyle String?
+  debutYear    Int?
+  imageUrl     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  stats           PlayerCareerStats?
+  seasonStats     PlayerSeasonStats[]
+  awards          SeasonAward[]
+
+  @@map("players")
+}
+
+enum PlayerRole {
+  BATTER
+  BOWLER
+  ALL_ROUNDER
+  WICKET_KEEPER
+}
+
+model Season {
+  id        String   @id @default(cuid())
+  year      Int      @unique
+  createdAt DateTime @default(now())
+
+  matches      Match[]
+  playerStats  PlayerSeasonStats[]
+  awards       SeasonAward[]
+
+  @@map("seasons")
+}
+
+
+model PlayerCareerStats {
+  id        String @id @default(cuid())
+  playerId  String @unique
+  player    Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  matches  Int @default(0)
+  runs     Int @default(0)
+  wickets  Int @default(0)
+  catches  Int @default(0)
+  sixes    Int @default(0)
+  fours    Int @default(0)
+  ducks    Int @default(0)
+  momAwards Int @default(0)
+
+  @@map("player_career_stats")
+}
+
+model PlayerSeasonStats {
+  id       String @id @default(cuid())
+  playerId String
+  seasonId String
+
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  matches  Int @default(0)
+  runs     Int @default(0)
+  wickets  Int @default(0)
+  catches  Int @default(0)
+  momAwards Int @default(0)
+
+  rankingPoints Int @default(0)
+
+  @@unique([playerId, seasonId])
+  @@map("player_season_stats")
+}
+
+model SeasonAward {
+  id       String @id @default(cuid())
+  playerId String
+  seasonId String
+  type     AwardType
+
+  player Player @relation(fields: [playerId], references: [id])
+  season Season @relation(fields: [seasonId], references: [id])
+
+  @@map("season_awards")
+}
+
+enum AwardType {
+  MVP
+  BEST_BATTER
+  BEST_BOWLER
+  MOST_IMPROVED
+}
+
+model Match {
+  id        String   @id @default(cuid())
+  seasonId  String
+  opponent  String
+  venue     String?
+  matchDate DateTime
+  result    MatchResult
+  summary   String?
+  imageUrl  String?
+
+  season Season @relation(fields: [seasonId], references: [id])
+
+  @@map("matches")
+}
+
+enum MatchResult {
+  WON
+  LOST
+  TIED
+  NO_RESULT
+}
+
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
