@@ -9,7 +9,7 @@ const TeamBanner = async () => {
   return (
         <div>
             {team?.bannerUrl && (
-                <Image src={team?.bannerUrl} alt='' width={1000} height={400} unoptimized className='rounded-xl max-h-80 object-cover object-top'/>
+                <Image src={team?.bannerUrl} alt='' width={1000} height={400} unoptimized className='rounded-3xl shadow-xl max-h-80 object-cover object-top'/>
             )}
         </div>
     )

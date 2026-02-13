@@ -232,12 +232,20 @@ model Match {
 
   opponent  String
   venue     String?
+  liveLink  String?
   matchDate DateTime
   result    MatchResult
+  status    MatchStatus
   summary   String?
   imageUrl  String?
 
   @@map("matches")
+}
+
+enum MatchStatus {
+  LIVE
+  SCHEDULED
+  COMPLETED
 }
 
 enum MatchResult {

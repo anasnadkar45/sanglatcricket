@@ -7,6 +7,7 @@ import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "./api/uploadthing/core";
 import { ModeToggle } from "@/components/theme/ModeToggle";
+import Navbar from "@/components/Navbar";
 
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -42,7 +43,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <main>
+          <main className="relative">
             <NextSSRPlugin
               /**
                * The `extractRouterConfig` will extract **only** the route configs
@@ -52,6 +53,7 @@ export default function RootLayout({
                */
               routerConfig={extractRouterConfig(ourFileRouter)}
             />
+            <Navbar />
             {children}
             <ModeToggle />
           </main>
