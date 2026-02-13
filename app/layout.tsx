@@ -54,7 +54,9 @@ export default function RootLayout({
               routerConfig={extractRouterConfig(ourFileRouter)}
             />
             <Navbar />
-            {children}
+            <div className="container mt-18 px-2">
+              {children}
+            </div>
             <ModeToggle />
           </main>
           <Toaster />

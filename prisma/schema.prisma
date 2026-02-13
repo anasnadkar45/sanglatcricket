@@ -129,9 +129,10 @@ model Player {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  stats       PlayerCareerStats?
-  seasonStats PlayerSeasonStats[]
-  awards      SeasonAward[]
+  stats            PlayerCareerStats?
+  seasonStats      PlayerSeasonStats[]
+  awards           SeasonAward[]
+  playerMatchStats PlayerMatchStats[]
 
   @@map("players")
 }
@@ -218,6 +219,33 @@ enum AwardType {
   MOST_IMPROVED
 }
 
+model PlayerMatchStats {
+  id String @id @default(cuid())
+
+  playerId String
+  matchId  String
+
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  match  Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  runs  Int @default(0)
+  balls Int @default(0)
+  fours Int @default(0)
+  sixes Int @default(0)
+
+  wickets   Int    @default(0)
+  overs     Float?
+  runsGiven Int    @default(0)
+
+  catches Int @default(0)
+  runOuts Int @default(0)
+
+  isPlayingXI Boolean @default(true)
+
+  @@unique([playerId, matchId])
+  @@map("player_match_stats")
+}
+
 //////////////////////////////////////////////////////
 // MATCHES
 //////////////////////////////////////////////////////
@@ -230,14 +258,15 @@ model Match {
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
   season Season @relation(fields: [seasonId], references: [id])
 
-  opponent  String
-  venue     String?
-  liveLink  String?
-  matchDate DateTime
-  result    MatchResult
-  status    MatchStatus
-  summary   String?
-  imageUrl  String?
+  opponent         String
+  venue            String?
+  liveLink         String?
+  matchDate        DateTime
+  result           MatchResult
+  status           MatchStatus
+  summary          String?
+  imageUrl         String?
+  playerMatchStats PlayerMatchStats[]
 
   @@map("matches")
 }
